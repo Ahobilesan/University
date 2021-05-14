@@ -1,0 +1,32 @@
+.page {
+    padding: 2em;
+
+    .statistic-data {
+        margin-top: 2em !important;
+
+        .statistic {
+            cursor: pointer;
+
+            a {
+                text-align: center;
+            }
+        }
+
+    }
+
+    .header-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+    }
+
+    .image-content {
+        display: flex;
+        align-items: flex-start;
+        padding: 1em;
+
+        .image {
+            margin-right: 1em
+        }
+    }
+}
