@@ -1,10 +1,11 @@
 import React, { Suspense } from 'react';
-import { Loader, Dropdown, Icon } from 'semantic-ui-react';
+import { Loader, Dropdown, Icon, Header } from 'semantic-ui-react';
 import './App.scss';
 
 const defaultState = { page: "", loading: true }
 const pages: any = {
   college: React.lazy(() => import("./screens/college")),
+  courses: React.lazy(() => import("./screens/course")),
   teacher: React.lazy(() => import("./screens/teacher")),
   student: React.lazy(() => import("./screens/student")),
   home: React.lazy(() => import("./screens/home")),
@@ -32,9 +33,9 @@ class University extends React.Component {
     return <div className="university">
       {Page !== undefined && <div>
         <nav>
-          <span onClick={this.router.bind(this, "home")}>University</span>
+          <Header href="/" className="brand">College</Header>
           <div>
-            <Dropdown item trigger={<Icon name='user' />} icon=" "
+            <Dropdown item trigger={<Icon name='user' />} icon=""
               direction='left' options={this.options} />
           </div>
         </nav>
@@ -74,7 +75,6 @@ class University extends React.Component {
       Page = pages.home;
       this.state.page = "Home";
     }
-    console.log(path, Page)
     if (path)
       localStorage.setItem("path", path)
     this.state.loading = false;

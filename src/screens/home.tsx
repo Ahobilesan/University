@@ -1,79 +1,73 @@
 import React from 'react';
-import { Header, Statistic, Icon, Modal, Image, Button, Label } from 'semantic-ui-react';
-import coc from "../assets/images/college of commerce.jpg"
-import coam from "../assets/images/college of arts and music.jpg"
-import coa from "../assets/images/college of architecture.jpg"
+import { Header, Statistic, Icon, Modal, Image, Button, Label, Loader } from 'semantic-ui-react';
+import avatar from "../assets/images/avatars"
+import api from "../backend/api"
 import './shared-styles.scss';
 
-const defaultState = { open: false }
+const defaultState = { students: 0, teachers: 0, courses: 0, open: false, loading: true }
 class Home extends React.Component {
   state = { ...defaultState }
   render() {
     return <div className="page">
-      <Header as='h1'>Welcome back! John</Header>
-      <Statistic.Group widths='three' className="statistic-data">
-        <Statistic onClick={this.toggleModal.bind(this)}>
-          <Statistic.Value>3</Statistic.Value>
-          <Statistic.Label>Signups</Statistic.Label>
-          <a>View More</a>
-        </Statistic>
+      {!this.state.loading && <div>
+        <Header as='h1'>Welcome back! John</Header>
+        <Statistic.Group widths='three' className="statistic-data">
+          <Statistic onClick={this.toggleModal.bind(this)}>
+            <Statistic.Value>3</Statistic.Value>
+            <Statistic.Label>Signups</Statistic.Label>
+            <a>View More</a>
+          </Statistic>
 
-        <Statistic onClick={this.handleClick.bind(this, "college")}>
-          <Statistic.Value>
-            <Icon name='university' />50
-      </Statistic.Value>
-          <Statistic.Label>Colleges</Statistic.Label>
-          <a>View More</a>
-        </Statistic>
+          <Statistic onClick={this.handleClick.bind(this, "courses")}>
+            <Statistic.Value>
+              <Icon name='book' />{this.state.courses}
+            </Statistic.Value>
+            <Statistic.Label>Courses</Statistic.Label>
+            <a>View More</a>
+          </Statistic>
 
-        <Statistic onClick={this.handleClick.bind(this, "teacher")}>
-          <Statistic.Value>
-            <Icon name='users' />420
-      </Statistic.Value>
-          <Statistic.Label>Teachers</Statistic.Label>
-          <a>View More</a>
-        </Statistic>
-      </Statistic.Group>
-
+          <Statistic onClick={this.handleClick.bind(this, "student")}>
+            <Statistic.Value>
+              <Icon name='users' />{this.state.students}
+            </Statistic.Value>
+            <Statistic.Label>Students</Statistic.Label>
+            <a>View More</a>
+          </Statistic>
+        </Statistic.Group>
+      </div>}
       <Modal
         open={this.state.open}
       >
         <Modal.Header>New Signups</Modal.Header>
         <Modal.Content scrolling>
           <div className="image-content">
-            <Image size='medium' src={coc} />
+            <Image size='medium' src={avatar.matthew} />
             <Modal.Description>
               <div className="header-wrapper">
-                <Header>College Of Commerce</Header>
+                <Header>Matthew</Header>
                 <Label color="yellow">Approval pending</Label>
               </div>
-              <p>
-                Offering Online Education Since 2010, We were founded in 1905, and have long had a commitment to reaching our students anywhere they are. And while our beautiful campus is in the foothills of western Carolina, our students are all around the globe.
-          </p>
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</p>
             </Modal.Description>
           </div>
           <div className="image-content">
-            <Image size='medium' src={coam} />
+            <Image size='medium' src={avatar.lindsay} />
             <Modal.Description>
               <div className="header-wrapper">
-                <Header>College Of Music</Header>
+                <Header>Lindsay</Header>
                 <Label color="yellow">Approval pending</Label>
               </div>
-              <p>
-                As the largest provider of worldwide music education, we help you take your music career to the next level through our award-winning courses, certificates, bachelor’s, and master’s degree programs.
-          </p>
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</p>
             </Modal.Description>
           </div>
           <div className="image-content">
-            <Image size='medium' src={coa} />
+            <Image size='medium' src={avatar.rachel} />
             <Modal.Description>
               <div className="header-wrapper">
-                <Header>College Of Architecture</Header>
+                <Header>Rachel</Header>
                 <Label color="olive">Approval Processing</Label>
               </div>
-              <p>
-                College Of Architecture is uniquely structured as a two plus three stackable credential, awarding a technical Associate of Applied Science degree after the first two years and a comprehensive professional Bachelor of Architecture (B.Arch.) degree after the final three years. This structure allows students from other technical and community colleges to seamlessly transfer into year three program...
-          </p>
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum</p>
             </Modal.Description>
           </div>
         </Modal.Content>
@@ -85,7 +79,27 @@ class Home extends React.Component {
           />
         </Modal.Actions>
       </Modal>
+
+      {this.state.loading && <Loader active>Loading Home</Loader>}
     </div>
+  }
+
+  componentDidMount() {
+    this.getStats()
+  }
+
+  async getStats() {
+    try {
+      let res: any = await api.statistics?.read()
+      if (res!.error === false) {
+        console.log(res)
+        let { students, teachers, courses } = res.result;
+        this.setState({ students, teachers, courses, loading: false })
+      }
+    } catch (error) {
+      console.log(error)
+      this.setState({ loading: false })
+    }
   }
 
   toggleModal() {

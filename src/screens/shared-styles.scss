@@ -1,7 +1,29 @@
 .page {
     padding: 2em;
+    max-width: 1200px;
+    margin: auto;
 
-    .statistic-data {
+    .header-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 2em 0;
+
+        >h1 {
+            margin: 0 !important
+        }
+    }
+
+    .filter {
+        display: flex;
+        justify-content: space-between;
+        >.input{
+            width:70%
+        }
+    }
+
+    .statistic-data,
+    .list-data {
         margin-top: 2em !important;
 
         .statistic {
@@ -14,10 +36,61 @@
 
     }
 
-    .header-wrapper {
+    .list {
+        border: 1px solid rgba(34, 36, 38, .15);
+
+        >.item {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 1em !important;
+
+            .content {
+                width: 100%;
+
+                &:nth-child(2),
+                &:nth-child(3),
+                &:nth-child(4) {
+                    text-align: center;
+                }
+
+                .details {
+                    display: flex;
+                    align-items: baseline;
+                    padding: 0.25em;
+
+                    span:nth-child(1) {
+                        width: 4em
+                    }
+
+                    span:nth-child(2) {
+                        margin-left: 1em;
+                    }
+                }
+
+                .grades {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: baseline;
+                    padding: 0.25em;
+
+                    div:nth-child(2) {
+                        width: 3em;
+                        text-align: left !important;
+                    }
+                }
+            }
+
+            &.empty-list {
+                text-align: center;
+            }
+        }
+    }
+
+    .pagination {
         display: flex;
-        justify-content: space-between;
-        align-items: baseline;
+        align-items: center;
+        justify-content: flex-end;
     }
 
     .image-content {
