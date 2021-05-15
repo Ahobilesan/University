@@ -1,6 +1,7 @@
 // Imports
 import { University } from "./database";
 import { IStudent, IResult, IResults, IVoid, IError } from "../interface"
+import { sleep } from "./util"
 import { v4 as uuidv4 } from 'uuid';
 
 // Intializing Database
@@ -9,8 +10,9 @@ const db = new University();
 // Functions
 export default {
     create: async function (data: IStudent): Promise<IError | IVoid> {
+        await sleep()
         try {
-            if (!data.name) {
+            if (!data.firstName) {
                 return {
                     error: true,
                     msg: "invalidStudentName"
@@ -24,22 +26,26 @@ export default {
                 }
             }
 
-            if (!data.college) {
+            if (!data.grades) {
                 return {
                     error: true,
-                    msg: "invalidCollege"
+                    msg: "invalidGrades"
                 }
             }
 
             let student: IStudent = {
-                pid: uuidv4(),
-                name: data.name,
+                sid: uuidv4(),
+                firstName: data.firstName,
+                lastName: data.lastName,
+                email: data.email,
+                gender: data.gender,
+                birthday: data.birthday,
+                regNumber: data.regNumber,
                 course: data.course,
-                college: data.college,
                 grades: data.grades
             }
 
-            await db.student.put(student)
+            await db.student.add(student)
 
             return {
                 error: false
@@ -52,16 +58,17 @@ export default {
             }
         }
     },
-    read: async function (pid: string): Promise<IError | IResult> {
+    read: async function (sid: string): Promise<IError | IResult> {
+        await sleep()
         try {
-            if (!pid) {
+            if (!sid) {
                 return {
                     error: true,
                     msg: "invalidStudentID"
                 }
             }
 
-            let student: any = await db.student.filter((r) => { return r.pid === pid }).first();
+            let student: any = await db.student.filter((r) => { return r.sid === sid }).first();
             if (student !== undefined) {
                 return {
                     error: false,
@@ -82,21 +89,44 @@ export default {
             }
         }
     },
-    readAll: async function (limit?: number): Promise<IError | IResults> {
+    readAll: async function (limit?: number, filter?: any): Promise<IError | IResults> {
+        await sleep()
         try {
             let student: IStudent[]
-            let db_student = db.student
-            let count = await db_student.count()
-            if (limit) {
-                student = await db_student.limit(limit).toArray();
-            } else {
-                student = await db_student.toArray();
-            }
+
+            limit = limit ? parseFloat(limit as any) + 15 : 15;
+
+            let filteredData = await (await db.student.filter((r: any) => {
+                let result = false;
+
+                if (filter && filter.name) {
+                    if (r.firstName.toLowerCase().indexOf(filter.name.toLowerCase()) !== -1 || r.lastName.toLowerCase().indexOf(filter.name.toLowerCase()) !== -1) {
+                        result = true
+                    } else {
+                        return false
+                    }
+                }
+                if (filter && filter.course) {
+                    if (r.course.name === filter.course) {
+                        result = true
+                    } else {
+                        return false
+                    }
+                }
+                if (!filter || !filter.name || !filter.course) {
+                    result = true
+                }
+                return result
+            }))
+            let count = await filteredData.count();
+            student = await (await filteredData.limit(limit).toArray()).reverse();
 
             return {
                 error: false,
-                limit: count,
-                results: [...student]
+                limit: Math.ceil(count / 15),
+                active: Math.ceil(limit / 15),
+                offset: limit,
+                results: [...student.slice(0, 15)]
             }
         } catch (error) {
             console.log(error)
@@ -106,16 +136,17 @@ export default {
             }
         }
     },
-    update: async function (pid: string, data: IStudent): Promise<IError | IVoid> {
+    update: async function (sid: string, data: IStudent): Promise<IError | IVoid> {
+        await sleep()
         try {
-            if (!pid) {
+            if (!sid) {
                 return {
                     error: true,
                     msg: "invalidStudentID"
                 }
             }
 
-            if (!data.name) {
+            if (!data.firstName) {
                 return {
                     error: true,
                     msg: "invalidStudentName"
@@ -129,19 +160,23 @@ export default {
                 }
             }
 
-            if (!data.college) {
+            if (!data.grades) {
                 return {
                     error: true,
-                    msg: "invalidCollege"
+                    msg: "invalidGrades"
                 }
             }
-            let student = await db.student.filter((r) => { return r.pid === pid }).first();
+            let student = await db.student.filter((r) => { return r.sid === sid }).first();
 
             if (student !== undefined) {
-                student.name = data.name;
-                student.course = data.course;
-                student.college = data.college;
-                student.grades = data.grades;
+                student.firstName = data.firstName ? data.firstName : student.firstName;
+                student.lastName = data.lastName ? data.lastName : student.lastName;
+                student.email = data.email ? data.email : student.email;
+                student.gender = data.gender ? data.gender : student.gender;
+                student.regNumber = data.regNumber ? data.regNumber : student.regNumber;
+                student.birthday = data.birthday ? data.birthday : student.birthday;
+                student.course = data.course ? data.course : student.course;
+                student.grades = data.grades ? data.grades : student.grades;
 
                 await db.student.put(student)
             } else {
@@ -162,16 +197,17 @@ export default {
             }
         }
     },
-    delete: async function (pid: string): Promise<IError | IVoid> {
+    delete: async function (sid: string): Promise<IError | IVoid> {
+        await sleep()
         try {
-            if (!pid) {
+            if (!sid) {
                 return {
                     error: true,
                     msg: "invalidStudentID"
                 }
             }
 
-            await db.student.where("pid").anyOf(pid).delete();
+            await db.student.where("sid").anyOf(sid).delete();
             return {
                 error: false
             }

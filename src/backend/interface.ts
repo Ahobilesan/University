@@ -7,8 +7,9 @@ export interface ICollege {
 }
 
 export interface ICourse {
+    cid: string;
     name: string;
-    subject: ISubject;
+    subjects: string[];
     month: 6 | 9 | 12 | 24 | 36;
 }
 
@@ -18,20 +19,28 @@ export interface ISubject {
 
 export interface IGrade {
     subject: string;
-    grade: string;
+    grade: any;
 }
 
 export interface ITeacher {
     tid: string;
-    name: string;
-    college: string;
-    subjects: ISubject[];
+    firstName: string;
+    lastName: string;
+    email: string;
+    gender: string;
+    salary: string;
+    birthday: string;
+    subjects: string[];
 }
 
 export interface IStudent {
-    pid: string;
-    name: string;
-    college: string;
+    sid: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    gender: string;
+    regNumber: string;
+    birthday: string;
     course: ICourse;
     grades: IGrade[];
 }
@@ -49,11 +58,13 @@ export interface IResult {
 export interface IResults {
     error: boolean;
     limit: number;
+    offset: number;
+    active: number;
     results: any[];
 }
 
 export interface IError {
-    error: boolean;
+    error: true;
     msg?: string;
     arg?: any;
 }

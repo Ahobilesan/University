@@ -10,7 +10,7 @@ const db = new University();
 export default {
     create: async function (data: ITeacher): Promise<IError | IVoid> {
         try {
-            if (!data.name) {
+            if (!data.firstName) {
                 return {
                     error: true,
                     msg: "invalidTeacherName"
@@ -24,17 +24,21 @@ export default {
                 }
             }
 
-            if (!data.college) {
+            if (!data.gender) {
                 return {
                     error: true,
-                    msg: "invalidCollege"
+                    msg: "invalidGender"
                 }
             }
             let teacher: ITeacher = {
                 tid: uuidv4(),
-                name: data.name,
+                firstName: data.firstName,
+                lastName: data.lastName,
+                email: data.email,
+                birthday: data.birthday,
+                salary: data.salary,
                 subjects: data.subjects,
-                college: data.college
+                gender: data.gender
             }
 
             await db.teacher.put(teacher)
@@ -86,14 +90,18 @@ export default {
             let db_teacher = db.teacher
             let count = await db_teacher.count()
             if (limit) {
-                teacher = await db_teacher.limit(limit).toArray();
+                limit = parseFloat(limit as any) + 15;
             } else {
-                teacher = await db_teacher.toArray();
+                limit = 15
             }
+            teacher = await db_teacher.limit(limit).toArray();
+
 
             return {
                 error: false,
-                limit: count,
+                limit: Math.ceil(count / 15),
+                active: Math.ceil(limit / 15),
+                offset: limit,
                 results: [...teacher]
             }
         } catch (error) {
@@ -113,26 +121,30 @@ export default {
                 }
             }
 
-            if (!data.name) {
+            if (!data.firstName) {
                 return {
                     error: true,
                     msg: "invalidTeacherName"
                 }
             }
 
-            if (!data.college) {
+            if (!data.gender) {
                 return {
                     error: true,
-                    msg: "invalidCollege"
+                    msg: "invalidGender"
                 }
             }
 
             let teacher = await db.teacher.filter((r) => { return r.tid === tid }).first();
 
             if (teacher !== undefined) {
-                teacher.name = data.name;
-                teacher.college = data.college;
-                teacher.subjects = data.subjects;
+                teacher.firstName = data.firstName ? data.firstName : teacher.firstName;
+                teacher.lastName = data.lastName ? data.lastName : teacher.lastName;
+                teacher.email = data.email ? data.email : teacher.email;
+                teacher.birthday = data.birthday ? data.birthday : teacher.birthday;
+                teacher.salary = data.salary ? data.salary : teacher.salary;
+                teacher.gender = data.gender ? data.gender : teacher.gender;
+                teacher.subjects = data.subjects ? data.subjects : teacher.subjects;
 
                 await db.teacher.put(teacher)
             } else {

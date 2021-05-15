@@ -1,8 +1,11 @@
 import Dexie from 'dexie';
-import { ICollege, IStudent, ITeacher } from "../interface"
+import { ICourse, IStudent, ITeacher } from "../interface"
+import { course, grades, students, teachers } from "./data"
+import { v4 as uuidv4 } from 'uuid';
+
 
 export class University extends Dexie {
-    college: Dexie.Table<ICollege, number>;
+    course: Dexie.Table<ICourse, number>;
     teacher: Dexie.Table<ITeacher, number>;
     student: Dexie.Table<IStudent, number>;
 
@@ -10,81 +13,69 @@ export class University extends Dexie {
         super("University");
 
         this.version(1).stores({
-            college: 'cid, name, course',
-            teacher: 'tid, name, college, subjects, students',
-            student: 'pid, name, college, course, grades',
+            course: 'cid, name, subjects, month',
+            teacher: 'tid, firstName, lastName, email, gender, subjects',
+            student: 'sid, firstName, lastName, email, gender, course, grades',
         });
 
-        this.college = this.table("college");
+        this.course = this.table("course");
         this.teacher = this.table("teacher");
         this.student = this.table("student");
+        this.initalizeMockData()
     }
 
-    async create(name: "college" | "teacher" | "student", data: ICollege | IStudent | ITeacher) {
-        try {
-            if (name !== "college" && name !== "teacher" && name !== "student") {
-                return {
-                    error: true,
-                    msg: "unknownDatabase"
-                }
-            }
+    addTeacherData() {
+        let _subjects: any = []
+        course.forEach(element => {
+            _subjects.push(...element.subjects)
+        });
 
-            if (!data) {
-                return {
-                    error: true,
-                    msg: "invalidArguments"
-                }
-            }
-
-            await this.transaction('rw', this[name], async () => {
-                await this[name].put((data as any));
-            });
-        } catch (error) {
-            console.log(error)
-            return {
-                error: true,
-                msg: "internalServerError"
-            }
+        for (let i = 0; i < _subjects.length; i++) {
+            teachers[i % 20].tid = uuidv4()
+            teachers[i % 20].subjects.push(_subjects[i])
         }
+        return teachers
     }
 
-    async read(name: ("college" | "teacher" | "student"), index?: string) {
-        try {
-            let key: any
-            switch (name) {
-                case "college":
-                    key = "cid"
-                    break;
-
-                case "teacher":
-                    key = "tid"
-                    break;
-
-                case "student":
-                    key = "pid"
-                    break;
-
-                default:
-                    return {
-                        error: true,
-                        msg: "unknownDatabase"
-                    }
+    async addStudentData() {
+        let success = new Promise((resolve) => {
+            let addGrades = (student: IStudent) => {
+                student.grades = []
+                for (let i = 0; i < student.course.subjects.length; i++) {
+                    const element = student.course.subjects[i];
+                    student.grades.push({ subject: element, grade: grades[(i % 12)] })
+                }
             }
-
-            return await this.transaction('rw', this[name], async () => {
-                if (index) {
-                    return await this[name].filter((r: any) => (r[key] === index)).first();
+            let idx = 0
+            for (let i = 0; i < students.length; i++) {
+                if (i > 3) {
+                    students[i].course = course[(i % 4)]
                 } else {
-                    return await this[name].toArray();
+                    students[i].course = course[i]
                 }
-            });
-        } catch (error) {
-            console.log(error)
-            return {
-                error: true,
-                msg: "internalServerError"
+                students[i].sid = uuidv4()
+                addGrades(students[i])
+                idx = i
             }
+
+            if (students.length - 1 === idx && students[idx].grades.length !== 0) {
+                resolve(true)
+            }
+        })
+        await success;
+        return students
+    }
+
+    async initalizeMockData() {
+        if (localStorage.getItem("mock_data") !== null) {
+            return
         }
+
+        localStorage.setItem("mock_data", "created")
+
+        await this.course.bulkAdd(course);
+        await this.teacher.bulkAdd(this.addTeacherData());
+        await this.student.bulkAdd(await this.addStudentData());
     }
 }
 
