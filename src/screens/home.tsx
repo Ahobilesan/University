@@ -8,7 +8,7 @@ const defaultState = { students: 0, teachers: 0, courses: 0, open: false, loadin
 class Home extends React.Component {
   state = { ...defaultState }
   render() {
-    return <div className="page">
+    return <div className="component-page">
       {!this.state.loading && <div>
         <Header as='h1'>Welcome back! John</Header>
         <Statistic.Group widths='three' className="statistic-data">
