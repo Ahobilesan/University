@@ -1,4 +1,4 @@
-import { IStudent } from "../backend/interface";
+import { ICourse, IStudent } from "../backend/interface";
 import { Genders, Months, Days } from "./data"
 
 // Functions
@@ -22,7 +22,7 @@ function formatDate(d: Date | string | number | undefined): Date {
 // Exports
 export function validateString(str: string) {
     let stringReg = new RegExp(/^[a-zA-Z]+$/)
-    return stringReg.test(str)
+    return stringReg.test(str.replace(/\s/, ""))
 }
 
 export function validateNumber(str: number) {
@@ -170,5 +170,75 @@ export function validateStudent(student: IStudent) {
     return {
         valid: true,
         msg: "Student dictionary is complete"
+    }
+}
+
+export function validateCourse(course: ICourse) {
+    if (!course) {
+        return {
+            valid: false,
+            msg: "Course not defined"
+        }
+    }
+
+    if (!course.name) {
+        return {
+            valid: false,
+            msg: "Course name not defined"
+        }
+    } else {
+        if (!validateString(course.name)) {
+            return {
+                valid: false,
+                msg: "Course name is not valid"
+            }
+        }
+    }
+    if (!course.month) {
+        return {
+            valid: false,
+            msg: "Course month not defined"
+        }
+    } else {
+        if (!validateNumber(course.month)) {
+            return {
+                valid: false,
+                msg: "Course month is not valid"
+            }
+        }
+    }
+    if (!course.subjects) {
+        return {
+            valid: false,
+            msg: "Course subjects not defined"
+        }
+    } else {
+        if (course.subjects.length === 0) {
+            return {
+                valid: false,
+                msg: "Atleast need one subject to add Course"
+            }
+        } else {
+            let result = false
+            for (let i = 0; i < course.subjects.length; i++) {
+                if (!validateString(course.subjects[i])) {
+                    console.log(course.subjects[i])
+                    result = false
+                    break
+                } else {
+                    result = true
+                }
+            }
+            if (!result) {
+                return {
+                    valid: false,
+                    msg: "One of the Subject is not valid"
+                }
+            }
+        }
+    }
+    return {
+        valid: true,
+        msg: "Course dictionary is complete"
     }
 }
