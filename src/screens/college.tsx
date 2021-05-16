@@ -3,7 +3,7 @@ import './shared-styles.scss';
 
 class College extends React.Component {
   render() {
-    return <div className="page">Hi</div>
+    return <div className="component-page">Hi</div>
   }
 }
 export default College;

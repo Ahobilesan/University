@@ -14,7 +14,7 @@ class Course extends React.Component {
             { key: 'Home', content: 'Home', href: "/" },
             { key: 'Courses', content: 'Courses', active: true }
         ]
-        return <div className="page">
+        return <div className="component-page">
             {!this.state.loading && <div>
                 <Breadcrumb icon='right angle' sections={sections} />
 

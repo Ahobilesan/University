@@ -11,7 +11,7 @@ class Teacher extends React.Component {
       { key: 'Home', content: 'Home', link: true, href: "/" },
       { key: 'Teachers', content: 'Teachers', active: true }
     ]
-    return <div className="page">
+    return <div className="component-page">
       <Breadcrumb icon='right angle' sections={sections} />
 
       <Header as='h1'>Teachers</Header>
