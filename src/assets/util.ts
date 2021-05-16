@@ -21,8 +21,8 @@ function formatDate(d: Date | string | number | undefined): Date {
 
 // Exports
 export function validateString(str: string) {
-    let stringReg = new RegExp(/^[a-zA-Z]+$/)
-    return stringReg.test(str.replace(/\s/, ""))
+    let stringReg = new RegExp(/^[a-zA-Z-&/(),.:-]+$/)
+    return stringReg.test(str.replace(/\s/g, ""))
 }
 
 export function validateNumber(str: number) {
