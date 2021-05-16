@@ -8,6 +8,18 @@ import { v4 as uuidv4 } from 'uuid';
 const db = new University();
 
 // Functions
+function calculateAvg(grades: any) {
+    let total = 0
+    if (grades && Array.isArray(grades)) {
+        for (let i = 0; i < grades.length; i++) {
+            const element = grades[i];
+            total += parseFloat(element.grade.avg)
+        }
+    }
+    return total > 0 ? total / grades.length : total
+}
+
+// Exports
 export default {
     create: async function (data: ICourse): Promise<IError | IVoid> {
         await sleep()
@@ -83,16 +95,22 @@ export default {
 
                     return result
                 }).toArray();
-                let student = await db.student.filter((r) => { return r.course.name === course!.name }).toArray();
+                let student = await db.student.filter((r) => { return r.course.cid === course!.cid }).toArray();
                 course.teacher = [...teacher]
                 course.student = [...student]
+
+                let total = 0;
+                for (let i = 0; i < course.student.length; i++) {
+                    const element = course.student[i];
+                    total += (calculateAvg(element.grades))
+                }
+                course.avg = Math.ceil(total > 0 ? total / course.student.length : total)
             } else {
                 return {
                     error: true,
                     msg: "invalidData"
                 }
             }
-
             return {
                 error: false,
                 result: { ...course }
