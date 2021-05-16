@@ -1,15 +1,15 @@
 import React, { Suspense } from 'react';
 import { Loader, Dropdown, Icon, Header } from 'semantic-ui-react';
+import LostScreen from "./screens/lostScreen";
 import './App.scss';
 
 const defaultState = { page: "", loading: true }
 const pages: any = {
-  college: React.lazy(() => import("./screens/college")),
-  courses: React.lazy(() => import("./screens/course")),
-  teacher: React.lazy(() => import("./screens/teacher")),
-  student: React.lazy(() => import("./screens/student")),
   home: React.lazy(() => import("./screens/home")),
-  404: React.lazy(() => import("./screens/404"))
+  courses: React.lazy(() => import("./screens/course")),
+  student: React.lazy(() => import("./screens/student")),
+  teacher: React.lazy(() => import("./screens/teacher")),
+  detail: React.lazy(() => import("./screens/detail"))
 }
 let Page: any
 
@@ -43,6 +43,7 @@ class University extends React.Component {
           {this.state.page !== "404" && !this.state.loading && <Suspense fallback={<Loader active>Loading {this.state.page}</Loader>}>
             <Page />
           </Suspense>}
+          {this.state.page === "404" && !this.state.loading && <LostScreen />}
         </div>
         <footer></footer>
       </div>}
