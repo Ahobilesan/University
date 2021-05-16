@@ -1,6 +1,7 @@
 // Imports
 import { University } from "./database";
 import { ICourse, IResult, IResults, IVoid, IError } from "../interface"
+import { sleep } from "./util"
 import { v4 as uuidv4 } from 'uuid';
 
 // Intializing Database
@@ -9,6 +10,7 @@ const db = new University();
 // Functions
 export default {
     create: async function (data: ICourse): Promise<IError | IVoid> {
+        await sleep()
         try {
             if (!data.name) {
                 return {
@@ -103,17 +105,31 @@ export default {
             }
         }
     },
-    readAll: async function (limit?: number): Promise<IError | IResults> {
+    readAll: async function (limit?: number, filter?: any): Promise<IError | IResults> {
+        await sleep()
         try {
             let course: ICourse[]
-            let db_course = db.course
-            let count = await db_course.count()
-            if (limit) {
-                limit = parseFloat(limit as any) + 15;
-            } else {
-                limit = 15
-            }
-            course = await db_course.limit(limit).toArray();
+
+            limit = limit ? parseFloat(limit as any) + 15 : 15;
+
+            let filteredData = await (await db.course.filter((r: any) => {
+                let result = false;
+
+                if (filter && filter.name) {
+                    if (r.name.toLowerCase().indexOf(filter.name.toLowerCase()) !== -1) {
+                        result = true
+                    } else {
+                        return false
+                    }
+                }
+                if (!filter || !filter.name) {
+                    result = true
+                }
+                return result
+            }))
+            let count = await filteredData.count();
+            course = await (await filteredData.limit(limit).toArray());
+
 
             let _course = []
             for (let i = 0; i < course.length; i++) {
@@ -138,6 +154,7 @@ export default {
         }
     },
     update: async function (cid: string, data: ICourse): Promise<IError | IVoid> {
+        await sleep()
         try {
             if (!cid) {
                 return {
@@ -193,6 +210,7 @@ export default {
         }
     },
     delete: async function (cid: string): Promise<IError | IVoid> {
+        await sleep()
         try {
             if (!cid) {
                 return {

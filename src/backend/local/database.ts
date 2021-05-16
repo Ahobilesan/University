@@ -66,6 +66,14 @@ export class University extends Dexie {
         return students
     }
 
+    addCourseData() {
+        for (let i = 0; i < course.length; i++) {
+            const element = course[i];
+            course[i].cid = uuidv4()
+        }
+        return course
+    }
+
     async initalizeMockData() {
         if (localStorage.getItem("mock_data") !== null) {
             return
@@ -73,7 +81,7 @@ export class University extends Dexie {
 
         localStorage.setItem("mock_data", "created")
 
-        await this.course.bulkAdd(course);
+        await this.course.bulkAdd(this.addCourseData());
         await this.teacher.bulkAdd(this.addTeacherData());
         await this.student.bulkAdd(await this.addStudentData());
     }
