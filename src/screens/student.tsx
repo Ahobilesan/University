@@ -10,7 +10,9 @@ import './shared-styles.scss';
 const defaultState = {
   courses: [],
   students: [],
-  addStudent: false,
+  openStudentModal: false,
+  editStudent: false,
+  deleteAck: false,
   loading: true,
   listLoading: false,
   offset: [undefined],
@@ -19,6 +21,7 @@ const defaultState = {
   filter: { name: "", course: "" },
   formValidate: false,
   modal: {
+    sid: "",
     firstName: "",
     lastName: "",
     email: "",
@@ -31,10 +34,13 @@ const defaultState = {
   },
   modalFreeze: false
 }
+
 class Students extends React.Component {
   state = { ...defaultState }
   throttleFunc: any
   courseOptions: any
+  deleteResolve: any = () => { }
+  deleteReject: any = () => { }
   constructor(props: any) {
     super(props)
     this.throttleFunc = throttle(this.handleSearch.bind(this), 900, { leading: false, trailing: true });
@@ -65,17 +71,22 @@ class Students extends React.Component {
         <List divided relaxed className="list-data">
           <List.Item className="list-heading">
             <List.Content>
-              <List.Header>Student</List.Header>
+              <List.Header as="h3">Student</List.Header>
             </List.Content>
             <List.Content>
-              <List.Header>Grades</List.Header>
+              <List.Header as="h3">Grades</List.Header>
             </List.Content>
           </List.Item>
 
           {!this.state.listLoading && this.state.students.map((e: any, i: number) => {
             return <List.Item key={i}>
               <List.Content>
-                <div className="details"><span>Name</span>: <span>{e.firstName} {e.lastName}</span></div>
+                <div className="details">
+                  <Dropdown compact trigger={<span >{e.firstName} {e.lastName}</span>} options={[
+                    { key: 'Edit', text: 'Edit', onClick: this.editStudent.bind(this, e) },
+                    { key: 'Delete', text: 'Delete', onClick: this.deleteStudent.bind(this, e) },
+                  ]} /></div>
+                {/* <div className="details"><span>Name</span>: <span>{e.firstName} {e.lastName}</span></div> */}
                 <div className="details"><span>Email</span>: <span>{e.email}</span></div>
                 <div className="details"><span>Gender</span>: <span>{e.gender}</span></div>
                 <div className="details"><span>DOB</span>: <span>{getVisibleDate(e.birthday)}</span></div>
@@ -111,9 +122,9 @@ class Students extends React.Component {
 
       {/* Modal */}
       <Modal
-        open={this.state.addStudent}
+        open={this.state.openStudentModal}
       >
-        <Modal.Header>Add Student</Modal.Header>
+        <Modal.Header>{this.state.editStudent ? "Edit" : "Add"} Student</Modal.Header>
         <Modal.Content>
           <Form>
             <Form.Group widths='equal'>
@@ -160,7 +171,7 @@ class Students extends React.Component {
                 required
                 max={getDate()}
                 error={this.state.formValidate && !birthday}
-                value={birthday}
+                value={getDate(birthday)}
                 onChange={this.handleFormChange.bind(this)}
               />
             </Form.Group>
@@ -241,9 +252,29 @@ class Students extends React.Component {
           />
           <Button
             primary
-            content="Save"
+            content={this.state.editStudent ? "Update" : "Save"}
             disabled={this.state.modalFreeze}
             onClick={this.saveStudent.bind(this)}
+          />
+        </Modal.Actions>
+      </Modal>
+      <Modal
+        open={this.state.deleteAck}
+      >
+        <Modal.Header>Delete Acknowledgement</Modal.Header>
+        <Modal.Content>Are you sure want to delete {firstName} {lastName}'s record?</Modal.Content>
+        <Modal.Actions>
+          <Button
+            basic
+            content="Cancel"
+            disabled={this.state.modalFreeze}
+            onClick={this.deleteReject.bind(this)}
+          />
+          <Button
+            primary
+            content="Delete"
+            disabled={this.state.modalFreeze}
+            onClick={this.deleteResolve.bind(this)}
           />
         </Modal.Actions>
       </Modal>
@@ -252,14 +283,13 @@ class Students extends React.Component {
 
   componentDidMount() {
     Promise.all(([this.getStudentList(), this.getCourseList()])).then(() => { this.setState({ loading: false }) });
-    (window as any).getState = () => this.state;
+    // (window as any).getState = () => this.state;
   }
 
   async getCourseList() {
     try {
       let res = await api.course!.readAll();
       if (res.error === false) {
-        console.log(res)
         this.setState({ courses: res.results })
         this.courseOptions = []
         for (let i = 0; i < res.results.length; i++) {
@@ -278,8 +308,6 @@ class Students extends React.Component {
     try {
       let res: any = await api.student!.readAll(_offset, filter);
       if (res.error === false) {
-        console.log(res)
-
         let { offset } = this.state
         if (offset.indexOf(res.offset.toString()) === -1) {
           offset.push(res.offset.toString())
@@ -300,7 +328,6 @@ class Students extends React.Component {
   }
 
   handleSearch(_: any, { name, value }: any) {
-    console.log(name, value)
     let { filter }: any = this.state;
     filter[name] = value
 
@@ -339,11 +366,48 @@ class Students extends React.Component {
   }
 
   toggleAddStudentModal() {
-    this.setState((prevState: any) => ({ addStudent: !prevState.addStudent }), () => {
+    this.setState((prevState: any) => ({ openStudentModal: !prevState.openStudentModal }), () => {
       this.state.modal = { ...defaultState.modal }
       this.state.formValidate = false;
+      this.state.editStudent = false
       this.forceUpdate()
     })
+  }
+
+  async deleteStudent(data: any) {
+    try {
+      let promise = new Promise((resolve, reject) => {
+        let modal: any = { ...data }
+        this.deleteResolve = resolve;
+        this.deleteReject = reject;
+        this.setState({ modal, deleteAck: true })
+      })
+      await promise;
+
+      this.setState({ modalFreeze: true })
+      let res = await api.student!.delete(this.state.modal.sid)
+      if (res.error === false) {
+        this.state.modal = { ...defaultState.modal }
+
+        this.setState({ modalFreeze: false, deleteAck: false })
+        this.getStudentList()
+      }
+
+    } catch (error) {
+      console.log(error)
+      this.state.modal = { ...defaultState.modal }
+      this.setState({ modalFreeze: false, deleteAck: false })
+    }
+  }
+
+  editStudent(data: IStudent) {
+    let modal: any = { ...data }
+    modal.course = data.course.name;
+    modal.selectedCourse = data.course
+    modal.grades = data.grades.map((g) => {
+      return { ...g, grade: g.grade["Letter Grade"] }
+    })
+    this.setState({ modal, openStudentModal: true, editStudent: true })
   }
 
   addGrades(data: any) {
@@ -359,9 +423,9 @@ class Students extends React.Component {
   }
 
   async saveStudent() {
-    let modalData: any = { sid: "", ...this.state.modal }
+    let modalData: any = { ...this.state.modal }
     let data: IStudent = {
-      sid: "",
+      sid: modalData.sid,
       firstName: modalData.firstName,
       lastName: modalData.lastName,
       email: modalData.email,
@@ -381,10 +445,14 @@ class Students extends React.Component {
 
     this.setState({ modalFreeze: true })
     try {
-      let res: any = await api.student!.create(data);
-      if (res.error === false) {
-        console.log(res)
+      let res: any
+      if (this.state.editStudent === true) {
+        res = await api.student!.update(this.state.modal.sid, data)
+      } else {
+        res = await api.student!.create(data);
+      }
 
+      if (res.error === false) {
         this.setState({ modalFreeze: false })
         this.toggleAddStudentModal()
         this.getStudentList()
@@ -392,7 +460,8 @@ class Students extends React.Component {
 
     } catch (error) {
       console.log(error)
-      this.setState({ modal: defaultState.modal })
+      this.setState({ modalFreeze: false })
+      this.toggleAddStudentModal()
     }
   }
 }

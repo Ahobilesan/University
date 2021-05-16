@@ -60,6 +60,28 @@
                     align-items: baseline;
                     padding: 0.25em;
 
+                    .dropdown {
+                        margin-bottom: 0.5em;
+
+                        >span {
+                            font-size: 1.1em;
+                            font-weight: 600;
+                        }
+
+                        .menu {
+                            width: 100%;
+                            top: 1.8em;
+
+                            .item {
+                                font-weight: 400 !important;
+
+                                &.selected:not(:hover) {
+                                    background-color: transparent;
+                                }
+                            }
+                        }
+                    }
+
                     span:nth-child(1) {
                         width: 4em
                     }
