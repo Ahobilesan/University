@@ -294,7 +294,7 @@ class Students extends React.Component {
         this.courseOptions = []
         for (let i = 0; i < res.results.length; i++) {
           const element = res.results[i];
-          this.courseOptions.push({ key: element.name, text: element.name, value: element.name })
+          this.courseOptions.push({ key: element.cid, text: element.name, value: element.cid })
         }
       }
     } catch (error) {

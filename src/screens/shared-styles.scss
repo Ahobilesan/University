@@ -133,3 +133,25 @@
         }
     }
 }
+
+.lost-screen-wrapper {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    >div {
+        width: 100%
+    }
+
+    .text {
+        font-size: 25em;
+        margin-bottom: 0 !important;
+        text-align: center;
+    }
+
+    .message {
+        width: 50%;
+        margin: auto;
+    }
+}
