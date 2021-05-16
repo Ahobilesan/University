@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader, List, Breadcrumb, Header, Button, Icon, Modal, Form, Label } from 'semantic-ui-react';
+import { Loader, List, Breadcrumb, Header, Button, Icon, Modal, Form, Label, Dropdown } from 'semantic-ui-react';
 import api from "../backend/api"
 import { ICourse } from '../backend/interface';
 import { validateCourse } from "../assets/util"
@@ -68,7 +68,7 @@ class Course extends React.Component {
                             <List.Header>Averege Marks</List.Header>
                         </List.Content>
                     </List.Item>
-                    {this.state.courses.map((e: any, i: number) => {
+                    {!this.state.listLoading && this.state.courses.map((e: any, i: number) => {
                         return <List.Item key={i}>
                             <List.Content>{e.name}</List.Content>
 
@@ -76,10 +76,19 @@ class Course extends React.Component {
 
                             <List.Content>{e.student.length}</List.Content>
 
-                            <List.Content>{e.avg}</List.Content>
+                            <List.Content>{e.avg}%
+                                <div className="action-button-wrapper">
+                                    <Dropdown text=" " icon="ellipsis vertical" options={[
+                                        { key: 'View', text: 'View', onClick: this.viewCourse.bind(this, e) },
+                                        { key: 'Edit', text: 'Edit', onClick: this.editCourse.bind(this, e) },
+                                        { key: 'Delete', text: 'Delete', onClick: this.deleteCourse.bind(this, e) },
+                                    ]} />
+                                </div>
+                            </List.Content>
                         </List.Item>
                     })}
-                    {this.state.courses.length === 0 && <List.Item className="empty-list"><List.Content> No Items Found  </List.Content></List.Item>}
+                    {!this.state.listLoading && this.state.courses.length === 0 && <List.Item className="empty-list"><List.Content> No Items Found  </List.Content></List.Item>}
+                    {this.state.listLoading && <List.Item className="empty-list"><Loader active inline="centered"></Loader></List.Item>}
                 </List>
                 <div className="pagination">
                     <Button.Group>
@@ -124,7 +133,7 @@ class Course extends React.Component {
                             />
                         </Form.Group>
 
-                        <Form.Button basic onClick={this.addSubject.bind(this)}>Add Subject</Form.Button>
+                        <Form.Button basic disabled={this.state.modalFreeze} onClick={this.addSubject.bind(this)}>Add Subject</Form.Button>
 
                         {subjects && subjects.map((s: any, i) => {
                             return <Form.Input key={i}
@@ -181,10 +190,12 @@ class Course extends React.Component {
     }
 
     componentDidMount() {
-        this.getCourseList().then(() => { this.setState({ loading: false }) })
+        this.getCourseList().then(() => { this.setState({ loading: false }) });
+        // (window as any).getState = () => this.state;
     }
 
     async getCourseList(_offset?: number, filter?: any) {
+        this.setState({ listLoading: true })
         try {
             let res: any = await api.course!.readAll(_offset, filter);
             if (res.error === false) {
@@ -222,7 +233,7 @@ class Course extends React.Component {
 
     toggleAddCourseModal() {
         this.setState((prevState: any) => ({ openCourseModal: !prevState.openCourseModal }), () => {
-            this.state.modal = { ...defaultState.modal }
+            this.state.modal = { ...defaultState.modal, subjects: [] }
             this.state.formValidate = false;
             this.state.editCourse = false
             this.forceUpdate()
@@ -237,7 +248,6 @@ class Course extends React.Component {
     }
 
     removeSubject(idx: number) {
-        console.log(idx)
         let modal = this.state.modal;
         if (idx !== -1)
             modal.subjects.splice(idx, 1)
@@ -245,7 +255,6 @@ class Course extends React.Component {
     }
 
     async handleFormChange(_: any, { name, value, id }: any) {
-        console.log(id, name, value)
         let { modal }: any = this.state;
         if (name === "subject") {
             modal.subjects[id] = value
@@ -253,6 +262,10 @@ class Course extends React.Component {
             modal[name] = value;
         }
         this.setState({ modal })
+    }
+
+    viewCourse() {
+
     }
 
     async deleteCourse(data: any) {
