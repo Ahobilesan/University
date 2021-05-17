@@ -344,6 +344,36 @@ export function validateTeacher(teacher: ITeacher) {
             }
         }
     }
+    if (!teacher.subjects) {
+        return {
+            valid: false,
+            msg: "Course subjects not defined"
+        }
+    } else {
+        if (teacher.subjects.length === 0) {
+            return {
+                valid: false,
+                msg: "Atleast need one subject to add Course"
+            }
+        } else {
+            let result = false
+            for (let i = 0; i < teacher.subjects.length; i++) {
+                if (!validateString(teacher.subjects[i])) {
+                    console.log(teacher.subjects[i])
+                    result = false
+                    break
+                } else {
+                    result = true
+                }
+            }
+            if (!result) {
+                return {
+                    valid: false,
+                    msg: "One of the Subject is not valid"
+                }
+            }
+        }
+    }
     return {
         valid: true,
         msg: "Teacher dictionary is complete"

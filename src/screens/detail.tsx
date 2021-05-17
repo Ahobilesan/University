@@ -260,39 +260,42 @@ class Detail extends React.Component {
 
   getTeacherDetails(e: any, i: any) {
     if (this.state.activeIndex !== i) return
-    console.log(e, i)
     let teachers = this.state.course.teacher.filter((r: any) => {
       return r.subjects.indexOf(e) !== -1
     })
-    console.log(e, i)
-    return <List divided relaxed className="list-data">
-      {teachers.map((t: any, i: any) => {
-        return <List.Item key={i}>
-          <List.Content>
-            <div className="details">
-              <Dropdown compact trigger={<span >{t.firstName} {t.lastName}</span>} options={[
-                { key: 'Edit', text: 'Edit', onClick: this.editTeacher.bind(this, t) },
-                { key: 'Delete', text: 'Delete', onClick: this.deleteTeacher.bind(this, t) },
-              ]} />
-              {/* <List.Header>{t.firstName} {t.lastName}</List.Header> */}
-            </div>
-            <div className="details"><span>Email</span>: <span>{t.email}</span></div>
-            <div className="details"><span>Gender</span>: <span>{t.gender}</span></div>
-            <div className="details"><span>DOB</span>: <span>{getVisibleDate(t.birthday)}</span></div>
-            <div className="details"><span>Salary</span>: <span>{getCurrency(t.salary)}</span></div>
-          </List.Content>
-        </List.Item>
-      })}
-    </List>
+    return <div>
+      <div className="header-wrapper mt-0" >
+        <div></div>
+        <Button primary onClick={this.toggleAddTeacherModal.bind(this, e)}>Add Teacher</Button>
+      </div>
+      {teachers.length !== 0 && <List divided relaxed className="list-data">
+        {teachers.map((t: any, i: any) => {
+          return <List.Item key={i}>
+            <List.Content>
+              <div className="details">
+                <Dropdown compact trigger={<span >{t.firstName} {t.lastName}</span>} options={[
+                  { key: 'Edit', text: 'Edit', onClick: this.editTeacher.bind(this, t) },
+                  { key: 'Delete', text: 'Delete', onClick: this.deleteTeacher.bind(this, t) },
+                ]} />
+                {/* <List.Header>{t.firstName} {t.lastName}</List.Header> */}
+              </div>
+              <div className="details"><span>Email</span>: <span>{t.email}</span></div>
+              <div className="details"><span>Gender</span>: <span>{t.gender}</span></div>
+              <div className="details"><span>DOB</span>: <span>{getVisibleDate(t.birthday)}</span></div>
+              <div className="details"><span>Salary</span>: <span>{getCurrency(t.salary)}</span></div>
+            </List.Content>
+          </List.Item>
+        })}
+      </List>
+      }
+    </div>
   }
 
   getStudentsDetails(e: any, i: any) {
     if (this.state.activeIndex !== i) return
-    console.log(e, i)
     let students = this.state.course.student.filter((r: any) => {
       return r.grades.findIndex((s: any) => s.subject === e) !== -1
     })
-    console.log(e, i)
     return <List divided relaxed className="student-list-data">
       {students.map((s: any, i: any) => {
         return <List.Item key={i}>
@@ -343,9 +346,13 @@ class Detail extends React.Component {
     }
   }
 
-  toggleAddTeacherModal() {
+  toggleAddTeacherModal(data?: any) {
+
     this.setState((prevState: any) => ({ openTeacherModal: !prevState.openTeacherModal }), () => {
       this.state.modal = { ...defaultState.modal }
+      if (typeof data === "string") {
+        this.state.modal.subjects = [data as never]
+      }
       this.state.formValidate = false;
       this.state.editTeacher = false
       this.forceUpdate()
@@ -378,7 +385,8 @@ class Detail extends React.Component {
       console.log(teacher.msg)
       return
     }
-
+    // console.log(data)
+    // return
     this.setState({ modalFreeze: true })
     try {
       let res: any
