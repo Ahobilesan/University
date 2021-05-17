@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader, List, Breadcrumb, Header, Button, Icon, Modal, Form, Label, Dropdown } from 'semantic-ui-react';
+import { Loader, List, Breadcrumb, Header, Button, Icon, Modal, Form, Dropdown } from 'semantic-ui-react';
 import api from "../backend/api"
 import { ICourse } from '../backend/interface';
 import { validateCourse } from "../assets/util"
@@ -79,7 +79,7 @@ class Course extends React.Component {
                             <List.Content>{e.avg}%
                                 <div className="action-button-wrapper">
                                     <Dropdown text=" " icon="ellipsis vertical" options={[
-                                        { key: 'View', text: 'View', href:`/detail?cid=${e.cid}` },
+                                        { key: 'View', text: 'View', href: `/detail?cid=${e.cid}` },
                                         { key: 'Edit', text: 'Edit', onClick: this.editCourse.bind(this, e) },
                                         { key: 'Delete', text: 'Delete', onClick: this.deleteCourse.bind(this, e) },
                                     ]} />
@@ -233,8 +233,11 @@ class Course extends React.Component {
 
     toggleAddCourseModal() {
         this.setState((prevState: any) => ({ openCourseModal: !prevState.openCourseModal }), () => {
+            // eslint-disable-next-line
             this.state.modal = { ...defaultState.modal, subjects: [] }
+            // eslint-disable-next-line
             this.state.formValidate = false;
+            // eslint-disable-next-line
             this.state.editCourse = false
             this.forceUpdate()
         })
@@ -281,6 +284,7 @@ class Course extends React.Component {
             this.setState({ modalFreeze: true })
             let res = await api.course!.delete(this.state.modal.cid)
             if (res.error === false) {
+                // eslint-disable-next-line
                 this.state.modal = { ...defaultState.modal }
 
                 this.setState({ modalFreeze: false, deleteAck: false })
@@ -289,6 +293,7 @@ class Course extends React.Component {
 
         } catch (error) {
             console.log(error)
+            // eslint-disable-next-line
             this.state.modal = { ...defaultState.modal }
             this.setState({ modalFreeze: false, deleteAck: false })
         }

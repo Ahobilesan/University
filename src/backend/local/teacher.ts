@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 const db = new University();
 
 // Functions
+// eslint-disable-next-line
 export default {
     create: async function (data: ITeacher): Promise<IError | IVoid> {
         try {

@@ -40,7 +40,7 @@ const defaultState = {
 class Students extends React.Component {
   state = { ...defaultState }
   throttleFunc: any
-  courseOptions: any
+  courseOptions: any = []
   deleteResolve: any = () => { }
   deleteReject: any = () => { }
   constructor(props: any) {
@@ -333,8 +333,11 @@ class Students extends React.Component {
 
   toggleAddStudentModal() {
     this.setState((prevState: any) => ({ openStudentModal: !prevState.openStudentModal }), () => {
+      // eslint-disable-next-line
       this.state.modal = { ...defaultState.modal }
+      // eslint-disable-next-line
       this.state.formValidate = false;
+      // eslint-disable-next-line
       this.state.editStudent = false
       this.forceUpdate()
     })
@@ -353,6 +356,7 @@ class Students extends React.Component {
       this.setState({ modalFreeze: true })
       let res = await api.student!.delete(this.state.modal.sid)
       if (res.error === false) {
+        // eslint-disable-next-line
         this.state.modal = { ...defaultState.modal }
 
         this.setState({ modalFreeze: false, deleteAck: false })
@@ -361,6 +365,7 @@ class Students extends React.Component {
 
     } catch (error) {
       console.log(error)
+      // eslint-disable-next-line
       this.state.modal = { ...defaultState.modal }
       this.setState({ modalFreeze: false, deleteAck: false })
     }

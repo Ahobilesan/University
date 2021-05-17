@@ -6,6 +6,7 @@ import { IResult, IError } from "../interface"
 const db = new University();
 
 // Functions
+// eslint-disable-next-line
 export default {
     read: async function (): Promise<IError | IResult> {
         try {

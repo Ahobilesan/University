@@ -68,7 +68,6 @@ export class University extends Dexie {
 
     addCourseData() {
         for (let i = 0; i < course.length; i++) {
-            const element = course[i];
             course[i].cid = uuidv4()
         }
         return course

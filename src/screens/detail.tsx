@@ -336,7 +336,7 @@ class Detail extends React.Component {
                 </div>
               </List.Content>
             } else {
-              return
+              return undefined
             }
 
           })}
@@ -357,6 +357,7 @@ class Detail extends React.Component {
       this.setState({ modalFreeze: true })
       let res = await api.teacher!.delete(this.state.modal.tid)
       if (res.error === false) {
+        // eslint-disable-next-line
         this.state.modal = { ...defaultState.modal }
 
         this.setState({ modalFreeze: false, deleteAck: false })
@@ -365,19 +366,23 @@ class Detail extends React.Component {
 
     } catch (error) {
       console.log(error)
+      // eslint-disable-next-line
       this.state.modal = { ...defaultState.modal }
       this.setState({ modalFreeze: false, deleteAck: false })
     }
   }
 
   toggleAddTeacherModal(data?: any) {
-
     this.setState((prevState: any) => ({ openTeacherModal: !prevState.openTeacherModal }), () => {
+      // eslint-disable-next-line
       this.state.modal = { ...defaultState.modal }
       if (typeof data === "string") {
+        // eslint-disable-next-line
         this.state.modal.subjects = [data as never]
       }
+      // eslint-disable-next-line
       this.state.formValidate = false;
+      // eslint-disable-next-line
       this.state.editTeacher = false
       this.forceUpdate()
     })

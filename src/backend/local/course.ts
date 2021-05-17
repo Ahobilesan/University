@@ -20,6 +20,7 @@ function calculateAvg(grades: any) {
 }
 
 // Exports
+// eslint-disable-next-line
 export default {
     create: async function (data: ICourse): Promise<IError | IVoid> {
         await sleep()

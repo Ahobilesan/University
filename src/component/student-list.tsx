@@ -4,11 +4,6 @@ import { getVisibleDate } from "../assets/util"
 import '../screens/shared-styles.scss';
 
 class Students extends React.Component<any> {
-
-    constructor(props: any) {
-        super(props)
-    }
-
     render() {
         return <div className="component">
             <List divided relaxed className="list-data">

@@ -17,7 +17,7 @@ class Home extends React.Component {
           <Statistic onClick={this.toggleModal.bind(this)}>
             <Statistic.Value>3</Statistic.Value>
             <Statistic.Label>Signups</Statistic.Label>
-            <a>View More</a>
+            <span className="link-text">View More</span>
           </Statistic>
 
           <Statistic onClick={this.handleClick.bind(this, "courses")}>
@@ -25,7 +25,7 @@ class Home extends React.Component {
               <Icon name='book' />{this.state.courses}
             </Statistic.Value>
             <Statistic.Label>Courses</Statistic.Label>
-            <a>View More</a>
+            <span className="link-text">View More</span>
           </Statistic>
 
           <Statistic onClick={this.handleClick.bind(this, "student")}>
@@ -33,7 +33,7 @@ class Home extends React.Component {
               <Icon name='users' />{this.state.students}
             </Statistic.Value>
             <Statistic.Label>Students</Statistic.Label>
-            <a>View More</a>
+            <span className="link-text">View More</span>
           </Statistic>
         </Statistic.Group>
       </div>}
