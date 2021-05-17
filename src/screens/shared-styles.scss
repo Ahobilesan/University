@@ -130,16 +130,6 @@
         margin-top: 2em;
     }
 
-    .image-content {
-        display: flex;
-        align-items: flex-start;
-        padding: 1em;
-
-        .image {
-            margin-right: 1em
-        }
-    }
-
     .subjects {
         .title {
             display: flex;
@@ -149,6 +139,29 @@
 
     .mt-0 {
         margin-top: 0 !important;
+    }
+}
+
+
+.image-content {
+    display: flex;
+    align-items: center;
+    padding: 1em;
+
+    .header-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .header {
+            margin: 0 !important
+        }
+
+        margin-bottom: 1em;
+    }
+
+    .image {
+        margin-right: 1em
     }
 }
 

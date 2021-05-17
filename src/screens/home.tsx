@@ -1,6 +1,8 @@
 import React from 'react';
 import { Header, Statistic, Icon, Modal, Image, Button, Label, Loader } from 'semantic-ui-react';
-import avatar from "../assets/images/avatars"
+import matthew from "../assets/images/matthew.svg"
+import lindsay from "../assets/images/lindsay.svg"
+import rachel from "../assets/images/rachel.svg"
 import api from "../backend/api"
 import './shared-styles.scss';
 
@@ -41,7 +43,7 @@ class Home extends React.Component {
         <Modal.Header>New Signups</Modal.Header>
         <Modal.Content scrolling>
           <div className="image-content">
-            <Image size='medium' src={avatar.matthew} />
+            <Image size='medium' src={matthew} />
             <Modal.Description>
               <div className="header-wrapper">
                 <Header>Matthew</Header>
@@ -51,7 +53,7 @@ class Home extends React.Component {
             </Modal.Description>
           </div>
           <div className="image-content">
-            <Image size='medium' src={avatar.lindsay} />
+            <Image size='medium' src={lindsay} />
             <Modal.Description>
               <div className="header-wrapper">
                 <Header>Lindsay</Header>
@@ -61,7 +63,7 @@ class Home extends React.Component {
             </Modal.Description>
           </div>
           <div className="image-content">
-            <Image size='medium' src={avatar.rachel} />
+            <Image size='medium' src={rachel} />
             <Modal.Description>
               <div className="header-wrapper">
                 <Header>Rachel</Header>
