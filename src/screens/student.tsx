@@ -1,10 +1,12 @@
 import React from 'react';
-import { List, Breadcrumb, Header, Button, Icon, Input, Dropdown, Loader, Modal, Form } from 'semantic-ui-react';
+import { Breadcrumb, Header, Button, Icon, Input, Dropdown, Loader, Modal, Form } from 'semantic-ui-react';
 import throttle from "lodash.throttle"
 import api from "../backend/api"
 import { Genders, Grades, GradeMap } from "../assets/data"
-import { validateStudent, getVisibleDate, getDate } from "../assets/util"
+import { validateStudent,  getDate } from "../assets/util"
 import { IStudent } from '../backend/interface';
+
+import StudentList from "../component/student-list"
 import './shared-styles.scss';
 
 const defaultState = {
@@ -68,44 +70,8 @@ class Students extends React.Component {
           <Dropdown placeholder='Course' search selection options={this.courseOptions} name="course" onChange={this.throttleFunc.bind(this)} />
         </div>
 
-        <List divided relaxed className="list-data">
-          <List.Item className="list-heading">
-            <List.Content>
-              <List.Header as="h3">Student</List.Header>
-            </List.Content>
-            <List.Content>
-              <List.Header as="h3">Grades</List.Header>
-            </List.Content>
-          </List.Item>
+        <StudentList students={[...this.state.students]} onEdit={this.editStudent.bind(this)} onDelete={this.deleteStudent.bind(this)} loading={this.state.listLoading} />
 
-          {!this.state.listLoading && this.state.students.map((e: any, i: number) => {
-            return <List.Item key={i}>
-              <List.Content>
-                <div className="details">
-                  <Dropdown compact trigger={<span >{e.firstName} {e.lastName}</span>} options={[
-                    { key: 'Edit', text: 'Edit', onClick: this.editStudent.bind(this, e) },
-                    { key: 'Delete', text: 'Delete', onClick: this.deleteStudent.bind(this, e) },
-                  ]} /></div>
-                {/* <div className="details"><span>Name</span>: <span>{e.firstName} {e.lastName}</span></div> */}
-                <div className="details"><span>Email</span>: <span>{e.email}</span></div>
-                <div className="details"><span>Gender</span>: <span>{e.gender}</span></div>
-                <div className="details"><span>DOB</span>: <span>{getVisibleDate(e.birthday)}</span></div>
-                <div className="details"><span>Course</span>: <span>{e.course.name}</span></div>
-                <div className="details"><span>REG Number</span>: <span>{e.regNumber}</span></div>
-              </List.Content>
-
-              <List.Content>{e.grades.map((s: any, _i: number) => {
-                return <div key={_i} className="grades">
-                  <List.Description>{s.subject}</List.Description>
-                  <List.Description>{s.grade["Letter Grade"]}</List.Description>
-                </div>
-              })}</List.Content>
-            </List.Item>
-          })}
-
-          {!this.state.listLoading && this.state.students.length === 0 && <List.Item className="empty-list"><List.Content> No Items Found  </List.Content></List.Item>}
-          {this.state.listLoading && <List.Item className="empty-list"><Loader active inline="centered"></Loader></List.Item>}
-        </List>
         <div className="pagination">
           <Button.Group>
             <Button basic disabled={this.state.offset.length < 3 || this.state.listLoading} primary icon labelPosition='left' onClick={this.handlePrevPage.bind(this)} >Prev<Icon name="arrow left" /></Button>
@@ -316,7 +282,7 @@ class Students extends React.Component {
         this.setState({
           offset,
           totalPages: res.limit,
-          activePage: res.active,
+          activePage: res.limit > 0 ? res.active : 0,
           students: res.results,
           listLoading: false
         })
@@ -374,7 +340,7 @@ class Students extends React.Component {
     })
   }
 
-  async deleteStudent(data: any) {
+  async deleteStudent(_: any, data: any) {
     try {
       let promise = new Promise((resolve, reject) => {
         let modal: any = { ...data }
@@ -400,7 +366,7 @@ class Students extends React.Component {
     }
   }
 
-  editStudent(data: IStudent) {
+  editStudent(_: any, data: IStudent) {
     let modal: any = { ...data }
     modal.course = data.course.name;
     modal.selectedCourse = data.course
