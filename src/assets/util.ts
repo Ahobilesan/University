@@ -1,9 +1,14 @@
-import { ICourse, IStudent } from "../backend/interface";
+import { ICourse, IStudent, ITeacher } from "../backend/interface";
 import { Genders, Months, Days } from "./data"
+
+
+// Variables
+const DateObj = new Date()
+const NumberFormat = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' });
 
 // Functions
 function formatDate(d: Date | string | number | undefined): Date {
-    let D = new Date();
+    let D = DateObj;
 
     if (d) {
         if (validateNumber(d as any)) {
@@ -14,7 +19,7 @@ function formatDate(d: Date | string | number | undefined): Date {
     }
 
     if (isNaN(D.getTime())) {
-        D = new Date()
+        D = DateObj
     }
     return D
 }
@@ -53,11 +58,20 @@ export function getVisibleDate(date?: Date | string | number, showDay?: boolean)
     }
 }
 
+export function getCurrency(amount: number | string) {
+    let number = parseFloat(amount as any)
+    if (!number) {
+        return NumberFormat.format(0)
+    }
+
+    return NumberFormat.format(number)
+}
+
 export function validateStudent(student: IStudent) {
     if (!student) {
         return {
             valid: false,
-            msg: "student not defined"
+            msg: "Student not defined"
         }
     }
 
@@ -240,5 +254,98 @@ export function validateCourse(course: ICourse) {
     return {
         valid: true,
         msg: "Course dictionary is complete"
+    }
+}
+
+export function validateTeacher(teacher: ITeacher) {
+    if (!teacher) {
+        return {
+            valid: false,
+            msg: "Teacher not defined"
+        }
+    }
+
+    if (!teacher.firstName) {
+        return {
+            valid: false,
+            msg: "First name not defined"
+        }
+    } else {
+        if (!validateString(teacher.firstName)) {
+            return {
+                valid: false,
+                msg: "First name is not a valid"
+            }
+        }
+    }
+    if (!teacher.lastName) {
+        return {
+            valid: false,
+            msg: "Last name not defined"
+        }
+    } else {
+        if (!validateString(teacher.lastName)) {
+            return {
+                valid: false,
+                msg: "Last name is not a valid"
+            }
+        }
+    }
+    if (!teacher.email) {
+        return {
+            valid: false,
+            msg: "Email not defined"
+        }
+    } else {
+        if (!validateEmail(teacher.email)) {
+            return {
+                valid: false,
+                msg: "Email is not a valid"
+            }
+        }
+    }
+    if (!teacher.gender) {
+        return {
+            valid: false,
+            msg: "Gender name not defined"
+        }
+    } else {
+        if (Genders.findIndex((r) => r.text === teacher.gender) === -1) {
+            return {
+                valid: false,
+                msg: "Gender is not a valid"
+            }
+        }
+    }
+    if (!teacher.salary) {
+        return {
+            valid: false,
+            msg: "Salary name not defined"
+        }
+    } else {
+        if (!validateNumber(Math.ceil(parseFloat(teacher.salary)) as any)) {
+            return {
+                valid: false,
+                msg: "Salary is not a valid"
+            }
+        }
+    }
+    if (!teacher.birthday) {
+        return {
+            valid: false,
+            msg: "Date of Birth name not defined"
+        }
+    } else {
+        let date = new Date(parseFloat(teacher.birthday))
+        if (isNaN(date.valueOf())) {
+            return {
+                valid: false,
+                msg: "Date of Birth is not valid"
+            }
+        }
+    }
+    return {
+        valid: true,
+        msg: "Teacher dictionary is complete"
     }
 }
