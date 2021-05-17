@@ -79,7 +79,7 @@ class Course extends React.Component {
                             <List.Content>{e.avg}%
                                 <div className="action-button-wrapper">
                                     <Dropdown text=" " icon="ellipsis vertical" options={[
-                                        { key: 'View', text: 'View', onClick: this.viewCourse.bind(this, e) },
+                                        { key: 'View', text: 'View', href:`/detail?cid=${e.cid}` },
                                         { key: 'Edit', text: 'Edit', onClick: this.editCourse.bind(this, e) },
                                         { key: 'Delete', text: 'Delete', onClick: this.deleteCourse.bind(this, e) },
                                     ]} />

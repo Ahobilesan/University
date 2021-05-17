@@ -121,6 +121,7 @@
         display: flex;
         align-items: center;
         justify-content: flex-end;
+        margin-top: 2em;
     }
 
     .image-content {
@@ -130,6 +131,13 @@
 
         .image {
             margin-right: 1em
+        }
+    }
+
+    .subjects {
+        .title {
+            display: flex;
+            justify-content: space-between;
         }
     }
 }
