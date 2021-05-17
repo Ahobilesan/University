@@ -107,7 +107,7 @@ export default {
                     }
                 }
                 if (filter && filter.course) {
-                    if (r.course.name === filter.course) {
+                    if (r.course.cid === filter.course) {
                         result = true
                     } else {
                         return false
