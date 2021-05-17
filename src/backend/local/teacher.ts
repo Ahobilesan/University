@@ -89,7 +89,7 @@ export default {
         try {
             let teacher: ITeacher[]
 
-            limit = limit ? parseFloat(limit as any) + 15 : 15;
+            limit = limit ? parseFloat(limit as any) + 25 : 25;
 
             let filteredData = await (await db.teacher.filter((r: any) => {
                 let result = false;
@@ -118,10 +118,10 @@ export default {
 
             return {
                 error: false,
-                limit: Math.ceil(count / 15),
-                active: Math.ceil(limit / 15),
+                limit: Math.ceil(count / 25),
+                active: Math.ceil(limit / 25),
                 offset: limit,
-                results: [...teacher.slice(0, 15)]
+                results: [...teacher.slice(0, 25)]
             }
         } catch (error) {
             console.log(error)

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Message, Breadcrumb, Header, Button, Accordion, Icon, Tab, List, Dropdown, Modal, Form, Loader } from "semantic-ui-react"
+import { Message, Breadcrumb, Header, Button, Accordion, Icon, Tab, List, Dropdown, Modal, Form, Loader, Divider } from "semantic-ui-react"
 import api from "../backend/api"
 import { validateTeacher, getDate, getVisibleDate, getCurrency } from "../assets/util"
 import { Genders } from "../assets/data"
@@ -13,6 +13,8 @@ const defaultState = {
   editTeacher: false,
   deleteAck: false,
   loading: true,
+  teachers: [],
+  dataFetching: false,
   listLoading: false,
   invalidID: false,
   activeIndex: -1,
@@ -33,7 +35,7 @@ const defaultState = {
 }
 class Detail extends React.Component {
   state = { ...defaultState }
-  throttleFunc: any
+  _teachers: any = []
   deleteResolve: any = () => { }
   deleteReject: any = () => { }
 
@@ -58,7 +60,7 @@ class Detail extends React.Component {
             <Header as='h1'>{course.name}</Header>
           </div>
 
-          {course.subjects && course.subjects.map((e, i) => {
+          {!this.state.listLoading && course.subjects && course.subjects.map((e, i) => {
             return <Accordion fluid styled key={i} className="subjects">
               <Accordion.Title active={activeIndex === i} index={i} onClick={this.handleClick}>
                 {e}
@@ -82,7 +84,19 @@ class Detail extends React.Component {
       <Modal
         open={this.state.openTeacherModal}
       >
-        <Modal.Header>{this.state.editTeacher ? "Edit" : "Add"} Teacher</Modal.Header>
+        <Modal.Header>{this.state.editTeacher ? "Edit" : "Assign"} Teacher</Modal.Header>
+        {!this.state.editTeacher && <Modal.Content>
+          <Dropdown
+            loading={this.state.dataFetching}
+            disabled={this.state.dataFetching}
+            placeholder='Select Teacher'
+            fluid
+            selection
+            options={this.state.teachers}
+            onChange={this.selectTeacher.bind(this)}
+          />
+        </Modal.Content>}
+        {!this.state.editTeacher && <Divider horizontal>Or</Divider>}
         <Modal.Content>
           <Form>
             <Form.Group widths='equal'>
@@ -258,7 +272,7 @@ class Detail extends React.Component {
   }
 
   async getTeacherlist(_offset?: number, filter?: any) {
-    this.setState({ listLoading: true })
+    this.setState({ dataFetching: true })
     try {
       let res: any = await api.teacher!.readAll(_offset, filter);
       if (res.error === false) {
@@ -266,18 +280,23 @@ class Detail extends React.Component {
         if (offset.indexOf(res.offset.toString() as never) === -1) {
           offset.push(res.offset.toString() as never)
         }
-
+        let teachers = []
+        for (let i = 0; i < res.results.length; i++) {
+          const element = res.results[i];
+          teachers.push({ key: element.tid, value: element.tid, text: `${element.firstName} ${element.lastName}` })
+        }
+        this._teachers = res.results;
         this.setState({
           offset,
+          teachers,
           totalPages: res.limit,
           activePage: res.limit > 0 ? res.active : 0,
-          teachers: res.results,
-          listLoading: false
+          dataFetching: false
         })
       }
     } catch (error) {
       console.log(error)
-      this.setState({ teachers: [], listLoading: false })
+      this.setState({ teachers: [], dataFetching: false })
     }
   }
 
@@ -290,7 +309,7 @@ class Detail extends React.Component {
     return <div>
       <div className="header-wrapper mt-0" >
         <div></div>
-        <Button primary onClick={this.toggleAddTeacherModal.bind(this, e)}>Add Teacher</Button>
+        <Button primary onClick={this.toggleAddTeacherModal.bind(this, e)}>Assign Teacher</Button>
       </div>
       {teachers.length !== 0 && <List divided relaxed className="list-data">
         {teachers.map((t: any, i: any) => {
@@ -373,19 +392,23 @@ class Detail extends React.Component {
   }
 
   toggleAddTeacherModal(data?: any) {
-    this.setState((prevState: any) => ({ openTeacherModal: !prevState.openTeacherModal }), () => {
-      // eslint-disable-next-line
-      this.state.modal = { ...defaultState.modal }
-      if (typeof data === "string") {
-        // eslint-disable-next-line
-        this.state.modal.subjects = [data as never]
-      }
-      // eslint-disable-next-line
-      this.state.formValidate = false;
-      // eslint-disable-next-line
-      this.state.editTeacher = false
-      this.forceUpdate()
-    })
+    if (this.state.openTeacherModal === false) {
+      this.getTeacherlist()
+    }
+    if (typeof data === "string") {
+      defaultState.modal.subjects = [data as never]
+    }
+    this.setState((prevState: any) => ({ modal: { ...defaultState.modal }, openTeacherModal: !prevState.openTeacherModal, formValidate: false, editTeacher: false }))
+  }
+
+  selectTeacher(_: any, { value }: any) {
+    console.log(value)
+    let idx = this._teachers.findIndex((t: any) => t.tid === value)
+    console.log(this._teachers[idx])
+    if (this._teachers[idx].subjects)
+      this._teachers[idx].subjects.push(this.state.modal.subjects[0])
+    let modal: any = { ...this._teachers[idx], }
+    this.setState({ modal })
   }
 
   editTeacher(data: ITeacher) {
