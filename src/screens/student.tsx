@@ -3,7 +3,7 @@ import { Breadcrumb, Header, Button, Icon, Input, Dropdown, Loader, Modal, Form 
 import throttle from "lodash.throttle"
 import api from "../backend/api"
 import { Genders, Grades, GradeMap } from "../assets/data"
-import { validateStudent,  getDate } from "../assets/util"
+import { validateStudent, getDate } from "../assets/util"
 import { IStudent } from '../backend/interface';
 
 import StudentList from "../component/student-list"

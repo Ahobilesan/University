@@ -289,9 +289,33 @@ class Detail extends React.Component {
   getStudentsDetails(e: any, i: any) {
     if (this.state.activeIndex !== i) return
     console.log(e, i)
-    return <div>
-      <StudentList students={[...this.state.course.student]} onEdit={(_: any, e: any) => { console.log("Edit", e) }} onDelete={(e: any) => { console.log("Delete", e) }} />
-    </div>
+    let students = this.state.course.student.filter((r: any) => {
+      return r.grades.findIndex((s: any) => s.subject === e) !== -1
+    })
+    console.log(e, i)
+    return <List divided relaxed className="student-list-data">
+      {students.map((s: any, i: any) => {
+        return <List.Item key={i}>
+          <List.Content>
+            <div className="details">
+              <List.Header>{s.firstName} {s.lastName}</List.Header>
+            </div>
+          </List.Content>
+          {s.grades.map((g: any, _i: any) => {
+            if (g.subject === e) {
+              return <List.Content>
+                <div className="details">
+                  <List.Header>{g.grade["Letter Grade"]}</List.Header>
+                </div>
+              </List.Content>
+            } else {
+              return
+            }
+
+          })}
+        </List.Item>
+      })}
+    </List>
   }
   async deleteTeacher(data: ITeacher) {
     try {

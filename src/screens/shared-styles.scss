@@ -37,6 +37,12 @@
 
     }
 
+    .student-list-data {
+        >.item>.content {
+            padding: 0 !important
+        }
+    }
+
     .list {
         border: 1px solid rgba(34, 36, 38, .15);
 
