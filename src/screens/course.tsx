@@ -69,7 +69,7 @@ class Course extends React.Component {
                         </List.Content>
                     </List.Item>
                     {!this.state.listLoading && this.state.courses.map((e: any, i: number) => {
-                        return <List.Item key={i} href={`/detail?cid=${e.cid}`}>
+                        return <List.Item key={i} onClick={(_e) => { document.location.replace(`/detail?cid=${e.cid}`); _e.preventDefault() }}>
                             <List.Content>{e.name}</List.Content>
 
                             <List.Content>{e.teacher.length}</List.Content>
