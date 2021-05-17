@@ -3,7 +3,6 @@ import { Message, Breadcrumb, Header, Button, Accordion, Icon, Tab, List, Dropdo
 import api from "../backend/api"
 import { validateTeacher, getDate, getVisibleDate, getCurrency } from "../assets/util"
 import { Genders } from "../assets/data"
-import StudentList from "../component/student-list"
 import './shared-styles.scss';
 import { ITeacher } from '../backend/interface';
 
@@ -18,7 +17,7 @@ const defaultState = {
   invalidID: false,
   activeIndex: -1,
   totalPages: 0,
-  filter: { name: "" },
+  offset: [],
   formValidate: false,
   modal: {
     tid: "",
@@ -83,7 +82,7 @@ class Detail extends React.Component {
       <Modal
         open={this.state.openTeacherModal}
       >
-        <Modal.Header>{this.state.editTeacher ? "Edit" : "Add"} Course</Modal.Header>
+        <Modal.Header>{this.state.editTeacher ? "Edit" : "Add"} Teacher</Modal.Header>
         <Modal.Content>
           <Form>
             <Form.Group widths='equal'>
@@ -257,6 +256,31 @@ class Detail extends React.Component {
     modal[name] = value
     this.setState({ modal })
   }
+
+  async getTeacherlist(_offset?: number, filter?: any) {
+    this.setState({ listLoading: true })
+    try {
+      let res: any = await api.teacher!.readAll(_offset, filter);
+      if (res.error === false) {
+        let { offset } = this.state
+        if (offset.indexOf(res.offset.toString() as never) === -1) {
+          offset.push(res.offset.toString() as never)
+        }
+
+        this.setState({
+          offset,
+          totalPages: res.limit,
+          activePage: res.limit > 0 ? res.active : 0,
+          teachers: res.results,
+          listLoading: false
+        })
+      }
+    } catch (error) {
+      console.log(error)
+      this.setState({ teachers: [], listLoading: false })
+    }
+  }
+
 
   getTeacherDetails(e: any, i: any) {
     if (this.state.activeIndex !== i) return

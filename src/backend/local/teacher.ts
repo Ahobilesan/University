@@ -84,25 +84,43 @@ export default {
             }
         }
     },
-    readAll: async function (limit?: number): Promise<IError | IResults> {
+    readAll: async function (limit?: number, filter?: any): Promise<IError | IResults> {
         try {
             let teacher: ITeacher[]
-            let db_teacher = db.teacher
-            let count = await db_teacher.count()
-            if (limit) {
-                limit = parseFloat(limit as any) + 15;
-            } else {
-                limit = 15
-            }
-            teacher = await db_teacher.limit(limit).toArray();
 
+            limit = limit ? parseFloat(limit as any) + 15 : 15;
+
+            let filteredData = await (await db.teacher.filter((r: any) => {
+                let result = false;
+
+                if (filter && filter.name) {
+                    if (r.firstName.toLowerCase().indexOf(filter.name.toLowerCase()) !== -1 || r.lastName.toLowerCase().indexOf(filter.name.toLowerCase()) !== -1) {
+                        result = true
+                    } else {
+                        return false
+                    }
+                }
+                if (filter && filter.subject) {
+                    if (r.subjects.indexOf(filter.subject) !== -1) {
+                        result = true
+                    } else {
+                        return false
+                    }
+                }
+                if (!filter || !filter.name || !filter.subject) {
+                    result = true
+                }
+                return result
+            }))
+            let count = await filteredData.count();
+            teacher = await (await filteredData.limit(limit).toArray()).reverse();
 
             return {
                 error: false,
                 limit: Math.ceil(count / 15),
                 active: Math.ceil(limit / 15),
                 offset: limit,
-                results: [...teacher]
+                results: [...teacher.slice(0, 15)]
             }
         } catch (error) {
             console.log(error)
